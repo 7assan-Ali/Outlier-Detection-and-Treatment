@@ -1,207 +1,154 @@
 # Outlier Detection and Treatment
 
-A practical data-analysis project for detecting, comparing, and treating outliers using the **Interquartile Range (IQR)** and **Z-Score** methods. The project also demonstrates several treatment strategies and provides a reusable Python backend with a GUI-oriented structure.
+A practical Python project for **exploring, detecting, comparing, and treating potential outliers** using the Interquartile Range (IQR) and standard Z-Score methods. The project combines a reproducible research notebook, reusable analysis modules, automated tests, and a Tkinter GUI.
 
-## Team Members
+## 👥 Team
 
 - **Hassan Ali Hassan**
 - **Abdelrahman Ahmed Abdelrahman**
 - **Mohamed Hussein Ramadan**
 
-## Project Overview
+## 🎯 Project Goal
 
-Outliers are observations that differ substantially from the majority of observations in a dataset. They may result from measurement errors, data-entry problems, unusual but valid observations, or genuine variation in the population. Therefore, an outlier should not automatically be deleted; the appropriate treatment depends on the data-generating process and the objective of the analysis.
+The project investigates how IQR can be used to identify potential outliers through Q1, Q3, IQR, and lower/upper fences, how detected observations should be treated, and when IQR is more appropriate than Z-Score.
 
-This project applies the research question to a **Heart Disease** dataset containing 10,000 observations and 21 variables. The analysis focuses on numerical features such as Age, Blood Pressure, Cholesterol Level, BMI, Sleep Hours, Triglyceride Level, Fasting Blood Sugar, CRP Level, and Homocysteine Level.
+> **Important:** an outlier is not automatically an error. Detection is a statistical screening step; treatment must be justified by the data, domain context, and analysis objective.
 
-## Research Question
+## 🔬 Research
 
-How can the IQR method be used to identify outliers, how should detected outliers be treated, and when is IQR more appropriate than the Z-Score approach?
+The full research paper is available here:
 
-## Research Objectives
+**[docs/research.md](docs/research.md)**
 
-1. Explore and understand the dataset before detecting outliers.
-2. Identify missing values and describe their distribution.
-3. Detect potential outliers using the IQR method.
-4. Detect potential outliers using the Z-Score method.
-5. Compare the results of IQR and Z-Score.
-6. Explain and implement common outlier-treatment strategies.
-7. Select treatment methods according to the characteristics and purpose of the data.
-8. Provide reusable Python functions and a GUI-ready project structure.
+It covers:
 
-# Research Background
+- IQR and Z-Score theory
+- Q1, Q3, IQR, lower and upper fences
+- IQR vs Z-Score comparison
+- Keep, trimming, capping, winsorization
+- Missing-value imputation
+- Log, Box-Cox, and Yeo-Johnson transformations
+- Treatment-selection criteria
+- Experimental results on the Heart Disease dataset
+- Limitations and scientific references
 
-## 1. What is an Outlier?
+## ❤️ Dataset
 
-An outlier is an observation that appears to be unusually far from the other observations in a sample. An unusual observation can represent a data-quality problem, but it can also represent genuine variation or an interesting phenomenon. Consequently, detecting an outlier is not equivalent to proving that the observation is incorrect.
+The main practical analysis uses a Heart Disease dataset with:
 
-NIST emphasizes that possible causes should be investigated before observations are rejected. In particular, an outlier may be caused by incorrect coding or experimental problems, while in other cases it may be a legitimate observation.
+- **10,000 rows**
+- **21 columns**
+- **9 numerical features** for the main outlier analysis
+- **12 categorical features**
+- `Heart Disease Status` as the target
 
-## 2. IQR Method
+### Numerical Features
 
-The Interquartile Range measures the spread of the middle 50% of the observations.
+- Age
+- Blood Pressure
+- Cholesterol Level
+- BMI
+- Sleep Hours
+- Triglyceride Level
+- Fasting Blood Sugar
+- CRP Level
+- Homocysteine Level
 
-### Step 1: Calculate Q1
+## 📊 Main Findings
 
-Q1 is the 25th percentile.
+### IQR
 
-### Step 2: Calculate Q3
-
-Q3 is the 75th percentile.
-
-### Step 3: Calculate IQR
+Using the standard rule:
 
 ```text
 IQR = Q3 - Q1
-```
-
-### Step 4: Calculate the fences
-
-```text
 Lower Fence = Q1 - 1.5 × IQR
 Upper Fence = Q3 + 1.5 × IQR
 ```
 
-Observations below the lower fence or above the upper fence are commonly flagged as potential outliers.
+All nine numerical features produced **0 potential IQR outliers**.
 
-The IQR approach is based on quartiles and is therefore less dependent on the mean and standard deviation than the ordinary Z-Score approach. This makes it particularly useful when the distribution is skewed or when extreme observations may influence the mean and standard deviation.
+### Z-Score
 
-## 3. Z-Score Method
-
-The standard Z-Score expresses an observation in units of standard deviations from the sample mean.
+Using:
 
 ```text
 Z = (X - mean) / standard deviation
 ```
 
-A commonly used rule is to flag observations whose absolute Z-Score is greater than 3:
+and the screening threshold:
 
 ```text
 |Z| > 3
 ```
 
-The threshold should not be treated as a universal law. Its suitability depends on the distribution, sample size, and analytical context. NIST also notes that ordinary Z-Scores can be misleading in some situations, especially when the data are not well represented by the assumptions behind mean and standard deviation.
+all nine numerical features also produced **0 potential Z-Score outliers**.
 
-## 4. IQR vs Z-Score
+### Missing Values
+
+The major missing-data issue was `Alcohol Consumption`:
+
+```text
+Missing = 2,586
+Percentage = 25.86%
+```
+
+A mode-imputation experiment changed `Medium` from **33.72% to 50.86%**, demonstrating that simple mode imputation can substantially distort a categorical distribution when the missing proportion is high.
+
+## ⚖️ IQR vs Z-Score
 
 | Aspect | IQR | Z-Score |
 |---|---|---|
-| Main statistics | Q1, Q3, IQR | Mean, Standard Deviation |
-| Distribution assumption | No normality assumption required | More suitable when distribution is approximately normal |
-| Sensitivity to extreme values | Relatively robust | More sensitive because mean and SD can be affected |
-| Typical rule | Outside Q1 ± 1.5×IQR | Usually |Z| > 3 |
+| Basis | Q1, Q3, IQR | Mean, Standard Deviation |
+| Normality required | No | More appropriate for approximately normal data |
+| Robustness | More robust to extreme values | More sensitive to extremes |
+| Typical rule | 1.5 × IQR fences | `|Z| > 3` |
 | Useful for skewed data | Yes | Less suitable without additional checks |
-| Interpretation | Distance from quartile-based fences | Distance from the mean in SD units |
 
-### When should IQR be preferred?
+The project uses both methods as complementary diagnostic tools rather than assuming one method is universally better.
 
-IQR is generally a strong choice when the distribution is skewed, when extreme values may affect the mean and standard deviation, or when a robust exploratory rule is desired.
+## 🛠️ Outlier Treatments
 
-### When should Z-Score be preferred?
+Implemented reusable treatment functions include:
 
-Z-Score can be useful when the numerical feature is approximately normally distributed and the analyst wants to express unusual observations relative to the mean and standard deviation.
+- **Keep** — retain observations unchanged.
+- **Trimming** — remove rows containing IQR outliers.
+- **Capping** — clip values to IQR fences.
+- **Winsorization** — limit extreme values without removing rows.
+- **Log transformation** — reduce the influence of large non-negative values.
+- **Yeo-Johnson transformation** — transform numerical variables while allowing zero and negative values.
 
-## 5. Outlier Treatment
+Missing-value imputation is handled separately because imputation is primarily a missing-data treatment, not an outlier treatment.
 
-Detecting an outlier does not automatically determine what should happen to it. Common approaches include:
+## 🖥️ GUI
 
-### Keep
+The project includes a Tkinter application for interactive analysis.
 
-The observation is retained when it is considered valid and meaningful.
-
-### Trimming
-
-The observation is removed from the analysis. This can be appropriate when there is strong evidence that an observation is erroneous, but deleting valid observations can introduce bias and reduce sample size.
-
-### Capping
-
-Values beyond selected boundaries are replaced by the boundary values. In this project, IQR fences can be used as the boundaries.
-
-### Winsorization
-
-Extreme values are replaced by less extreme values rather than deleting the corresponding observations. The exact winsorization rule should be reported because different thresholds can produce different results.
-
-### Imputation
-
-Imputation replaces missing values with estimated values. It is primarily a missing-data treatment rather than a direct outlier treatment. In this project, missing categorical values were investigated separately from outlier detection.
-
-### Mathematical Transformation
-
-Transformations such as logarithmic or Yeo-Johnson transformations can reduce skewness and decrease the influence of very large or very small values while retaining observations.
-
-## 6. How to Choose a Treatment
-
-The treatment should be selected after considering:
-
-- **Cause of the observation:** measurement error, data-entry error, or genuine observation.
-- **Distribution:** symmetric, skewed, heavy-tailed, or approximately normal.
-- **Sample size:** removing observations has a greater impact in small datasets.
-- **Feature meaning:** extreme values may have real scientific or medical meaning.
-- **Analysis objective:** descriptive statistics, statistical inference, or machine learning may require different decisions.
-- **Model sensitivity:** some models are more sensitive to extreme observations than others.
-- **Robustness:** results should ideally be checked under reasonable alternative treatments.
-
-A treatment should therefore be justified rather than selected only because it improves a metric.
-
-# Dataset Analysis
-
-The project uses a Heart Disease dataset with:
-
-- **10,000 rows**
-- **21 columns**
-- **9 numerical features** used for the main outlier analysis
-- **12 categorical features**
-- **Heart Disease Status** as the target variable
-
-## Missing Values
-
-Most features contain a very small proportion of missing values. The major exception is `Alcohol Consumption`, with 2,586 missing observations (**25.86%**).
-
-A test of simple mode imputation showed that replacing all missing `Alcohol Consumption` values with `Medium` changed the observed proportion of `Medium` from approximately **33.72% to 50.86%**. This demonstrates why the missing-data mechanism and the amount of missingness should be considered before blindly applying mode imputation.
-
-For the remaining categorical variables, missingness was approximately 0.2–0.3%, so mode imputation has a much smaller effect on the overall distribution. The project keeps missing-value treatment conceptually separate from outlier treatment.
-
-## Outlier Detection Results
-
-For the nine numerical features analyzed in the Heart Disease dataset:
-
-| Feature | IQR Outliers | Z-Score Outliers |
-|---|---:|---:|
-| Age | 0 | 0 |
-| Blood Pressure | 0 | 0 |
-| Cholesterol Level | 0 | 0 |
-| BMI | 0 | 0 |
-| Sleep Hours | 0 | 0 |
-| Triglyceride Level | 0 | 0 |
-| Fasting Blood Sugar | 0 | 0 |
-| CRP Level | 0 | 0 |
-| Homocysteine Level | 0 | 0 |
-
-Both methods identified **zero potential outliers** using the selected standard thresholds.
-
-This result is itself an important finding. The project does not force an outlier treatment when the detection methods do not identify observations as outliers.
-
-## Skewness Findings
-
-The calculated skewness values were close to zero for the numerical features, indicating that the features were broadly symmetric rather than strongly skewed.
-
-Examples:
+Current GUI workflow:
 
 ```text
-Age                   -0.006789
-Blood Pressure         0.013907
-Cholesterol Level     -0.007120
-BMI                   -0.021342
-Sleep Hours            0.000172
-Triglyceride Level     0.006142
-Fasting Blood Sugar   -0.008915
-CRP Level             -0.004069
-Homocysteine Level     0.007886
+Load CSV
+   ↓
+Preview Data
+   ↓
+Choose IQR or Z-Score
+   ↓
+Set threshold / multiplier
+   ↓
+Run Detection
+   ↓
+Review Results
+   ↓
+Apply IQR-based Treatment when appropriate
+   ↓
+Export CSV
 ```
 
-These values support the observation that the numerical distributions are not strongly skewed in this dataset.
+### Important GUI behavior
 
-# Project Implementation
+When **Z-Score** is selected, the application performs Z-Score detection. The current treatment functions are IQR-based, so the GUI does **not silently apply an IQR treatment after a Z-Score analysis**. It keeps the dataset unchanged unless `Keep` is selected.
+
+## 📁 Project Structure
 
 ```text
 Outlier-Detection-and-Treatment/
@@ -214,6 +161,7 @@ Outlier-Detection-and-Treatment/
 │   └── config.py
 │
 ├── Src/
+│   ├── __init__.py
 │   ├── iqr_detection.py
 │   ├── zscore_detection.py
 │   ├── preprocessing.py
@@ -235,11 +183,15 @@ Outlier-Detection-and-Treatment/
 │   ├── test_zscore.py
 │   └── test_treatment.py
 │
+├── docs/
+│   └── research.md
+│
 ├── main.py
+├── requirements.txt
 └── README.md
 ```
 
-## Main Technologies
+## 🧰 Technologies
 
 - Python
 - Pandas
@@ -251,62 +203,80 @@ Outlier-Detection-and-Treatment/
 - Tkinter
 - Pytest
 
-## Treatment Functions Implemented
+## 🚀 Setup
 
-The backend includes reusable functions for:
-
-- Keep
-- IQR trimming
-- IQR capping
-- Winsorization
-- Log transformation
-- Yeo-Johnson transformation
-
-## Running the Project
-
-Create and activate a virtual environment:
+### 1. Clone the repository
 
 ```bash
-python -m venv .venv
+git clone https://github.com/7assan-Ali/Outlier-Detection-and-Treatment.git
+cd Outlier-Detection-and-Treatment
 ```
 
-Windows PowerShell:
+### 2. Create a virtual environment
+
+Windows:
 
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
+If PowerShell blocks script execution, activate the environment from Command Prompt instead:
+
+```cmd
+.venv\Scripts\activate.bat
+```
+
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run the main analysis:
+### 4. Run the analysis
 
 ```bash
 python main.py
 ```
 
-Run tests:
+### 5. Run the GUI
+
+```bash
+python gui/app.py
+```
+
+### 6. Run tests
 
 ```bash
 pytest
 ```
 
-## Scientific References
+## 🧪 Testing
+
+The test suite covers:
+
+- IQR outlier detection
+- Z-Score outlier detection
+- Keep treatment
+- IQR trimming
+- IQR capping
+- Log transformation
+
+Tests use small controlled datasets because the real Heart Disease dataset contains no detected numerical outliers under the selected rules.
+
+## 📚 Scientific References
 
 1. Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.
-2. NIST/SEMATECH. *e-Handbook of Statistical Methods — Detection of Outliers*. National Institute of Standards and Technology.
-3. Iglewicz, B., & Hoaglin, D. (1993). *How to Detect and Handle Outliers*. ASQC Quality Press.
-4. Hawkins, D. M. (1980). *Identification of Outliers*. Chapman and Hall.
-5. Gollin, D., & Udry, C. (2021). Heterogeneity in productivity: evidence from African production. *Econometrica*, 89(6), 2939–2978.
-6. Musillo, G. (2026). *Winsorizing and trimming in RCTs*. Journal of Development Economics, 182, 103815. https://doi.org/10.1016/j.jdeveco.2026.103815
+2. Iglewicz, B., & Hoaglin, D. C. (1993). *How to Detect and Handle Outliers*. ASQC Quality Press.
+3. National Institute of Standards and Technology (NIST/SEMATECH). *e-Handbook of Statistical Methods: Detection of Outliers*.
+4. National Institute of Standards and Technology (NIST/SEMATECH). *e-Handbook of Statistical Methods: Exploratory Data Analysis*.
 
-## Important Note
+## 📌 Final Result
 
-Outlier detection is a statistical screening step, not proof that an observation is wrong. The final treatment should be justified by domain knowledge, data quality, distributional characteristics, and the objective of the analysis.
+The analysis found **no potential numerical outliers using either IQR or standard Z-Score** in the selected Heart Disease features. Therefore, the project does not force trimming or capping where there is no statistical evidence for doing so.
 
-## Authors
+The strongest preprocessing finding was instead the high missingness in `Alcohol Consumption`, showing why preprocessing decisions must be validated against the resulting data distribution.
 
-**Hassan Ali Hassan — Abdelrahman Ahmed Abdelrahman — Mohamed Hussein Ramadan**
+## 👨‍💻 Authors
+
+**Hassan Ali Hassan · Abdelrahman Ahmed Abdelrahman · Mohamed Hussein Ramadan**
