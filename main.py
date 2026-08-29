@@ -1,29 +1,37 @@
+import pandas as pd
+
 from config.config import Data_Path
-from Src.utils import load_data, missing_values_summary
-from Src.preprocessing import get_feature_types
 from Src.iqr_detection import detect_iqr_outliers
 from Src.zscore_detection import detect_zscore_outliers
-from Src.utils import compare_outlier_methods
 
 
 def main():
-    df = load_data(Data_Path)
+    df = pd.read_csv(Data_Path)
 
-    numeric_columns, _ = get_feature_types(
-        df,
-        target_column="Heart Disease Status",
-    )
+    numeric_columns = df.select_dtypes(include="number").columns.tolist()
 
-    print(f"Dataset shape: {df.shape}")
-    print("\nMissing values:")
-    print(missing_values_summary(df))
+    # Remove the target if it is numeric
+    if "Heart Disease Status" in numeric_columns:
+        numeric_columns.remove("Heart Disease Status")
 
+    print("Dataset shape:", df.shape)
+
+    print("\nMissing Values:")
+    print(df.isnull().sum()[df.isnull().sum() > 0])
+
+    print("\nIQR Results:")
     iqr_results = detect_iqr_outliers(df, numeric_columns)
+    print(iqr_results)
+
+    print("\nZ-Score Results:")
     zscore_results = detect_zscore_outliers(df, numeric_columns)
+    print(zscore_results)
 
-    comparison = compare_outlier_methods(iqr_results, zscore_results)
-
-    print("\nIQR vs Z-Score:")
+    print("\nComparison:")
+    comparison = iqr_results[["Feature", "Outlier Count"]].rename(
+        columns={"Outlier Count": "IQR Outliers"}
+    )
+    comparison["Z-Score Outliers"] = zscore_results["Outlier Count"].values
     print(comparison)
 
 
