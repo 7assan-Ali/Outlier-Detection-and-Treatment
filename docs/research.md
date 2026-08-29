@@ -1,31 +1,25 @@
-# Research: Outlier Detection and Treatment Using IQR and Z-Score
+# Research: Outlier Detection and Treatment
 
 ## Team Members
+
 - Hassan Ali Hassan
 - Abdelrahman Ahmed Abdelrahman
 - Mohamed Hussein Ramadan
 
 ## 1. Introduction
-Outliers are observations that appear to deviate markedly from the other observations in a dataset. They may result from measurement or data-entry errors, unusual but valid observations, natural variation, or scientifically important cases. Therefore, detecting an outlier does not automatically mean that it should be deleted. The appropriate treatment depends on the data-generating process, feature distribution, amount of contamination, and analysis objective.
 
-This research investigates two common univariate approaches for detecting potential outliers: the Interquartile Range (IQR) method and the Z-Score method. It also discusses keeping, trimming, capping/winsorizing, imputation where appropriate, and mathematical transformations.
+An outlier is an observation that is noticeably different from most observations in a dataset. It can be caused by an error, but it can also be a real and important observation. For this reason, detecting an outlier does not mean that it should automatically be removed.
+
+This research focuses on two common methods for detecting numerical outliers: **Interquartile Range (IQR)** and **Z-Score**. It also discusses common ways of dealing with unusual observations.
 
 ## 2. Research Question
-How can the IQR method identify potential outliers through Q1, Q3, IQR, and lower and upper fences? How should unusual observations be treated, and how does treatment depend on the data and analysis goal? When is IQR more suitable than Z-Score, and vice versa?
 
-## 3. Objectives
-1. Explain IQR-based outlier detection.
-2. Calculate Q1, Q3, IQR, lower fence, and upper fence.
-3. Detect potential outliers in the Heart Disease dataset.
-4. Explain common outlier-treatment strategies.
-5. Explain standard Z-Score and compare it with IQR.
-6. Evaluate both methods on the same numerical features.
-7. Document practical preprocessing decisions.
+How can IQR and Z-Score be used to detect outliers, and how should the treatment of detected observations depend on the data and the goal of the analysis?
 
-## 4. Dataset
-The analysis uses a Heart Disease dataset containing 10,000 observations and 21 variables. The target variable is `Heart Disease Status`.
+## 3. Dataset
 
-Numerical features used for outlier analysis:
+The analysis uses a Heart Disease dataset containing 10,000 rows and 21 columns. Nine numerical features were used for outlier detection:
+
 - Age
 - Blood Pressure
 - Cholesterol Level
@@ -36,66 +30,73 @@ Numerical features used for outlier analysis:
 - CRP Level
 - Homocysteine Level
 
-The dataset also contains categorical health and lifestyle variables.
+## 4. Exploratory Analysis
 
-## 5. Exploratory Data Analysis
-The exploratory stage inspected shape, data types, missing values, descriptive statistics, unique values, target distribution, histograms, and skewness.
+The first step was to inspect the shape, data types, missing values, descriptive statistics, unique values, target distribution, histograms, and skewness.
 
-Target distribution:
+The target contains:
 
 | Heart Disease Status | Count | Percentage |
 |---|---:|---:|
 | No | 8,000 | 80% |
 | Yes | 2,000 | 20% |
 
-The numerical features showed skewness values close to zero in the analysis, with no strong univariate skewness.
+The numerical features had skewness values close to zero in our analysis, and no strong univariate skewness was observed.
 
-## 6. Missing Values
-Missing values were found in numerical and categorical variables. The most important case was `Alcohol Consumption`, with 2,586 missing values (25.86%). Other missing-value percentages were approximately 0.2%–0.3% per feature.
+## 5. Missing Values
 
-A test of simple mode imputation for `Alcohol Consumption` substantially changed its observed distribution:
+Most features had a small amount of missing data (around 0.2%–0.3%). The main exception was `Alcohol Consumption`, with 2,586 missing values (25.86%).
 
-| Category | Before Count | After Count | Before %* | After % |
+A mode-imputation test changed the distribution considerably:
+
+| Category | Before | After | Before % | After % |
 |---|---:|---:|---:|---:|
 | Medium | 2,500 | 5,086 | 33.72% | 50.86% |
 | Low | 2,488 | 2,488 | 33.56% | 24.88% |
 | High | 2,426 | 2,426 | 32.72% | 24.26% |
 
-`*` Before percentages are calculated among non-missing observations.
+This result shows why missing values should not always be filled automatically with the mode, especially when the missing percentage is high.
 
-Because replacing 2,586 missing values with the mode substantially changes the distribution, simple mode imputation should not be applied automatically. In this project, the missing category can instead be represented explicitly as `Unknown` when appropriate.
+## 6. IQR Method
 
-## 7. IQR Method
-The Interquartile Range is a robust measure of spread based on the middle 50% of observations.
+The IQR method uses the middle 50% of the data and is relatively resistant to extreme observations.
 
-### 7.1 Q1
-Q1 is the 25th percentile.
+### Q1 and Q3
 
-### 7.2 Q3
-Q3 is the 75th percentile.
+- **Q1** = 25th percentile.
+- **Q3** = 75th percentile.
 
-### 7.3 IQR
-`IQR = Q3 - Q1`
+### IQR
 
-### 7.4 Lower and Upper Fences
-Using the standard 1.5 × IQR rule:
+```text
+IQR = Q3 - Q1
+```
 
-`Lower Fence = Q1 - 1.5 × IQR`
+### Fences
 
-`Upper Fence = Q3 + 1.5 × IQR`
+```text
+Lower Fence = Q1 - 1.5 × IQR
+Upper Fence = Q3 + 1.5 × IQR
+```
 
-Values below the lower fence or above the upper fence are labeled potential outliers. This project uses lower and upper fences only; extreme fences are not required.
+A value below the lower fence or above the upper fence is considered a potential outlier.
 
-### 7.5 Example: Age
-- Q1 = 34
-- Q3 = 65
-- IQR = 31
-- Lower Fence = -12.5
-- Upper Fence = 111.5
+We use only the lower and upper fences in this project; extreme fences are not required.
 
-All observed ages fall inside these fences, so Age has zero potential outliers.
+### Example: Age
 
-## 8. IQR Results
+```text
+Q1 = 34
+Q3 = 65
+IQR = 31
+Lower Fence = -12.5
+Upper Fence = 111.5
+```
+
+There were no observations outside these limits.
+
+## 7. IQR Results
+
 | Feature | Q1 | Q3 | IQR | Lower Fence | Upper Fence | Outliers |
 |---|---:|---:|---:|---:|---:|---:|
 | Age | 34.00 | 65.00 | 31.00 | -12.50 | 111.50 | 0 |
@@ -108,19 +109,25 @@ All observed ages fall inside these fences, so Age has zero potential outliers.
 | CRP Level | 3.674 | 11.256 | 7.581 | -7.698 | 22.628 | 0 |
 | Homocysteine Level | 8.723 | 16.141 | 7.417 | -2.403 | 27.266 | 0 |
 
-The IQR analysis found **no potential outliers** among the nine numerical features using the standard 1.5 × IQR rule.
+**Result: 0 IQR outliers.**
 
-## 9. Z-Score Method
-The standard Z-Score measures how far an observation is from the sample mean in standard-deviation units:
+## 8. Z-Score Method
 
-`Z = (x - mean) / standard deviation`
+The standard Z-Score shows how far a value is from the mean in standard-deviation units.
 
-A commonly used screening rule flags observations with absolute Z-Score greater than 3. This is a practical convention, not a universal law. Z-Score can be affected by skewness and by extreme observations because the mean and standard deviation are themselves sensitive to unusual values.
+```text
+Z = (X - mean) / standard deviation
+```
 
-NIST also discusses the modified Z-Score based on the median and MAD and notes the commonly recommended 3.5 threshold for that robust statistic. The current project uses the standard Z-Score for the requested IQR-versus-Z-Score comparison.
+A common screening rule is:
 
-## 10. Z-Score Results
-Using |Z| > 3, the analysis found zero potential outliers for all nine numerical features:
+```text
+|Z| > 3
+```
+
+This method is more sensitive to extreme observations because the mean and standard deviation can themselves be affected by extreme values. It is generally easier to interpret when the data are approximately normally distributed.
+
+## 9. Z-Score Results
 
 | Feature | Z-Score Outliers |
 |---|---:|
@@ -134,74 +141,83 @@ Using |Z| > 3, the analysis found zero potential outliers for all nine numerical
 | CRP Level | 0 |
 | Homocysteine Level | 0 |
 
-## 11. IQR vs Z-Score
-| Criterion | IQR | Z-Score |
+**Result: 0 Z-Score outliers.**
+
+## 10. IQR vs Z-Score
+
+| Point | IQR | Z-Score |
 |---|---|---|
-| Basis | Quartiles and middle 50% | Mean and standard deviation |
-| Distribution assumption | Does not require normality | Most interpretable for approximately normal data |
-| Robustness | Relatively robust to extremes | Sensitive because mean and SD can be affected |
-| Typical rule | 1.5 × IQR | Often |Z| > 3 |
-| Suitable for | Skewed, non-normal, or uncertain distributions | Approximately normal numerical variables |
-| Interpretation | Distance from quartile-based fences | Distance from mean in SD units |
+| Based on | Q1 and Q3 | Mean and standard deviation |
+| Normal distribution required | No | More suitable for approximately normal data |
+| Effect of extreme values | More robust | More sensitive |
+| Common rule | 1.5 × IQR | `|Z| > 3` |
+| Good choice | Skewed or non-normal data | Approximately normal data |
 
-The methods are complementary. Applying both can provide a useful diagnostic comparison, but disagreement should be investigated rather than resolved automatically.
+Neither method is always better. The choice depends on the distribution and the purpose of the analysis.
 
-## 12. Treatment of Outliers
-### 12.1 Keep
-Keep a potential outlier when it is valid and represents real population variation. Removing meaningful observations can introduce bias.
+## 11. Treatment of Outliers
 
-### 12.2 Trimming
-Trimming removes observations considered invalid or inappropriate. It is most defensible when there is evidence of data-entry, measurement, or collection error.
+### Keep
 
-### 12.3 Capping / Winsorizing
-Capping replaces values beyond selected boundaries with boundary values. Winsorization similarly limits the influence of extremes without deleting rows. It can be useful when extreme values are valid but have excessive influence on a downstream model.
+Keep the observation when it is valid and represents real variation in the population.
 
-### 12.4 Imputation
-Imputation is primarily a missing-data treatment, not an outlier treatment. Mean or median imputation may be considered for missing numerical values, while mode imputation can be considered for categorical variables with very small missing proportions. It should not be used simply to hide valid extreme observations.
+### Trimming
 
-The `Alcohol Consumption` experiment shows why blindly applying mode imputation can distort a feature distribution when missingness is high.
+Remove the observation when there is a good reason to believe that it is an error or should not be part of the analysis. Removing observations can reduce the sample size and may introduce bias.
 
-### 12.5 Mathematical Transformations
-Transformations can reduce skewness and compress the influence of large values while preserving observations. Examples include log/log1p, Box-Cox, and Yeo-Johnson. A transformation should be motivated by the distribution and downstream analysis requirements.
+### Capping / Winsorization
 
-## 13. How to Choose a Treatment
-The decision depends on:
+Limit extreme values to selected boundaries instead of removing the entire row. This can reduce the influence of extreme values while keeping the observation in the dataset.
 
-- **Nature of the observation:** correct/remove clear errors; preserve valid unusual observations.
-- **Distribution:** IQR and robust approaches are useful when data are skewed or non-normal.
-- **Sample size:** deletion can be costly in small datasets.
-- **Analysis objective:** descriptive analysis may require retaining valid extremes; predictive modeling may benefit from reducing their influence depending on the model.
-- **Model sensitivity:** regression, distance-based methods, and squared-error objectives can react strongly to extreme values; some tree-based models are less sensitive.
+### Imputation
 
-## 14. Findings from This Dataset
-The Heart Disease dataset contains **no potential numerical outliers according to either the standard IQR rule or the standard Z-Score threshold used in this project**. Therefore, trimming, capping, and winsorization are not justified for these numerical variables based on the current detection results.
+Imputation is mainly a **missing-value treatment**, not an outlier treatment. It can be used for missing values when an appropriate strategy is available.
 
-The main preprocessing issue was missing data, especially `Alcohol Consumption`. The mode-imputation experiment demonstrated that preprocessing can substantially alter a feature distribution even when no numerical outliers exist.
+### Mathematical Transformations
 
-The main principle is therefore: statistical rules should provide evidence for a preprocessing decision, not automatically force modification of every unusual or incomplete observation.
+Transformations such as Log, Box-Cox, and Yeo-Johnson can reduce skewness and decrease the influence of very large values while keeping the observations.
 
-## 15. Limitations
-1. IQR and standard Z-Score are primarily univariate and may miss multivariate anomalies.
-2. A statistically unusual value is not necessarily erroneous.
-3. Standard Z-Score is sensitive to the mean and standard deviation.
-4. The 1.5 × IQR and |Z| > 3 thresholds are practical conventions, not universal definitions.
-5. The analysis does not establish the cause of missingness.
-6. Outlier detection here focuses on numerical features.
+## 12. Choosing the Treatment
 
-## 16. Conclusion
-IQR provides a simple and robust approach for identifying potential outliers using quartiles and fences. Z-Score provides a standardized measure of distance from the mean and is particularly useful when the distribution is approximately normal.
+The treatment should depend on:
 
-For this Heart Disease dataset, both approaches identified zero potential outliers across the nine numerical features. Consequently, no trimming, capping, or winsorization was required for these features.
+- **Reason for the value:** an obvious data-entry error may be removed or corrected.
+- **Validity:** a real unusual observation should not be removed just because it is unusual.
+- **Distribution:** skewed data may benefit from robust methods or transformations.
+- **Sample size:** deleting rows can be problematic in small datasets.
+- **Analysis goal:** descriptive and predictive analyses may require different decisions.
+- **Model sensitivity:** some models are more affected by extreme values than others.
 
-The analysis also showed that preprocessing choices must be evaluated empirically. Mode imputation of `Alcohol Consumption` changed its observed distribution substantially because 25.86% of its values were missing. Treatment decisions should therefore consider missingness rate, feature type, distribution, validity of observations, and the objective of the analysis.
+## 13. Findings
 
-## 17. References
+Both methods found **zero potential numerical outliers** in the Heart Disease dataset under the selected rules. Therefore, there was no statistical reason to trim or cap the nine numerical features.
+
+The more important preprocessing issue was missing data, especially `Alcohol Consumption`. The mode-imputation experiment changed its distribution substantially, showing that preprocessing decisions should be checked after they are applied.
+
+## 14. Limitations
+
+- IQR and standard Z-Score are mainly univariate methods.
+- A statistical outlier is not necessarily an error.
+- Z-Score can be affected by extreme observations.
+- The thresholds used are common rules, not universal laws.
+- The analysis does not determine the actual cause of missing values.
+
+## 15. Conclusion
+
+IQR is a simple and robust method for detecting potential outliers using quartiles and fences. Z-Score measures the distance from the mean and is especially useful when the data are approximately normally distributed.
+
+In this dataset, both methods produced zero potential outliers. Therefore, no trimming, capping, or winsorization was applied. The analysis instead highlighted the importance of handling missing data carefully, particularly for `Alcohol Consumption`.
+
+The main conclusion is that outlier detection should support a preprocessing decision rather than automatically determine it.
+
+## 16. References
+
 1. Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.
 2. Iglewicz, B., & Hoaglin, D. C. (1993). *How to Detect and Handle Outliers*. ASQC Quality Press.
-3. National Institute of Standards and Technology (NIST/SEMATECH). *e-Handbook of Statistical Methods: Detection of Outliers*.
-4. National Institute of Standards and Technology (NIST/SEMATECH). *e-Handbook of Statistical Methods: Exploratory Data Analysis*.
+3. National Institute of Standards and Technology (NIST/SEMATECH). *e-Handbook of Statistical Methods*.
 
-## 18. Project Implementation
-The research is implemented in Python using Pandas, NumPy, SciPy, scikit-learn, Matplotlib, Seaborn, and Tkinter. The repository separates detection, treatment, preprocessing, visualization, testing, and GUI components so the analysis can be reproduced and reused on other CSV datasets.
+## 17. Implementation
+
+The analysis was implemented in Python using Pandas, NumPy, SciPy, and related libraries. The main calculations were first tested in `notebooks/exploratory_analysis.ipynb` and then organized into simple reusable Python files.
 
 Repository: https://github.com/7assan-Ali/Outlier-Detection-and-Treatment
