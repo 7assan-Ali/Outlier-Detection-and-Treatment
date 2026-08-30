@@ -1,19 +1,29 @@
 # Project Documentation
 
-## 1. Project Overview
+## About the Project
 
-This project detects numerical outliers in a Heart Disease dataset using two common methods:
+This project is a practical study of **outlier detection and treatment** using a Heart Disease dataset.
 
-- IQR (Interquartile Range)
+We started the work in the notebook to understand the data first, then moved the main calculations into simple Python files.
+
+The main goal is to compare two common methods:
+
+- IQR
 - Z-Score
 
-The project also explains common ways to treat outliers and missing values.
+and understand what we should do when unusual values are found.
 
-## 2. Dataset
+## Team Members
 
-The dataset contains 10,000 records and 21 columns.
+- Hassan Ali Hassan
+- Abdelrahman Ahmed Abdelrahman
+- Mohamed Hussein Ramadan
 
-The numerical columns used in the outlier analysis are:
+## Dataset
+
+The dataset contains **10,000 rows and 21 columns**.
+
+For the outlier analysis, we used the numerical columns only:
 
 - Age
 - Blood Pressure
@@ -25,9 +35,89 @@ The numerical columns used in the outlier analysis are:
 - CRP Level
 - Homocysteine Level
 
-`Heart Disease Status` is the target column and is not used for numerical outlier detection.
+We did not use `Heart Disease Status` for outlier detection because it is the target column.
 
-## 3. Project Structure
+## What We Did
+
+### 1. Loaded the data
+
+We loaded `heart_disease.csv` and checked its shape, columns, data types, and first few rows.
+
+### 2. Checked missing values
+
+We counted missing values in every column and calculated their percentages.
+
+Most columns had only a small number of missing values. The main problem was `Alcohol Consumption`, which had **2,586 missing values (25.86%)**.
+
+We also tested filling these missing values with the mode. The result changed the distribution noticeably, so we decided not to apply this automatically.
+
+### 3. Explored the numerical data
+
+We used:
+
+- `describe()` for summary statistics
+- `nunique()` to see the number of different values
+- Histograms to look at distributions
+- Skewness to get a simple idea about the shape of the data
+
+### 4. Detected outliers using IQR
+
+For every numerical feature, we calculated Q1, Q3 and IQR.
+
+```text
+IQR = Q3 - Q1
+
+Lower Fence = Q1 - 1.5 × IQR
+Upper Fence = Q3 + 1.5 × IQR
+```
+
+Any value below the lower fence or above the upper fence was counted as an outlier.
+
+We used the normal **1.5 × IQR rule** and did not use extreme fences.
+
+### 5. Detected outliers using Z-Score
+
+We calculated the Z-Score for every numerical feature using:
+
+```text
+Z = (X - Mean) / Standard Deviation
+```
+
+We used:
+
+```text
+|Z| > 3
+```
+
+as the outlier rule.
+
+### 6. Compared the two methods
+
+After running both methods, we compared the number of detected outliers for every numerical feature.
+
+The result was:
+
+```text
+IQR Outliers     = 0
+Z-Score Outliers = 0
+```
+
+So, both methods gave the same result on our dataset.
+
+## Outlier Treatment
+
+Because no potential numerical outliers were detected, we did not remove or cap any rows in the final dataset.
+
+We still included simple treatment functions in the project to demonstrate the main approaches:
+
+- **Keep:** leave valid unusual values as they are.
+- **Trimming:** remove observations when there is a valid reason to do so.
+- **Capping:** replace extreme values with selected limits.
+- **Log transformation:** reduce the effect of large values when the data is suitable for it.
+
+An important point from the research is that an outlier is not automatically an error. We should understand the data before deciding to remove or change it.
+
+## Project Structure
 
 ```text
 Outlier-Detection-and-Treatment/
@@ -59,154 +149,72 @@ Outlier-Detection-and-Treatment/
 └── LICENSE
 ```
 
-## 4. Installation
+## What Each File Does
 
-Create a virtual environment:
+### `main.py`
+
+Runs the main analysis and shows the IQR and Z-Score results.
+
+### `config/config.py`
+
+Contains the path of the dataset so we do not have to write the path in different files.
+
+### `Src/iqr_detection.py`
+
+Contains the function used to detect outliers using IQR.
+
+### `Src/zscore_detection.py`
+
+Contains the function used to detect outliers using Z-Score.
+
+### `Src/outlier_treatment.py`
+
+Contains simple examples of possible outlier treatment methods.
+
+### `notebooks/exploratory_analysis.ipynb`
+
+This was our testing area. We used it to explore the dataset, check missing values, visualize distributions, calculate skewness, and test IQR and Z-Score before organizing the code.
+
+### `docs/research.md`
+
+Contains the research part of the project, including the explanation of IQR, Z-Score, treatment methods, comparison, results, and references.
+
+## How to Run
+
+Create the environment:
 
 ```powershell
 python -m venv .venv
 ```
 
-Activate it on Windows PowerShell:
+Activate it:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install the required libraries:
+Install the libraries:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-## 5. Running the Project
-
-Run the main program from the project root:
+Then run:
 
 ```powershell
 python main.py
 ```
 
-The notebook can be opened from:
+## Final Result
 
-```text
-notebooks/exploratory_analysis.ipynb
-```
+The main finding of the project is simple: **we did not find potential numerical outliers using either IQR or Z-Score with the selected rules.**
 
-If the notebook cannot import `config`, run it with the project root as the working directory or use the relative dataset path inside the notebook.
+Therefore, there was no need to trim or cap the numerical data.
 
-## 6. IQR Detection
+The most noticeable preprocessing issue was missing data in `Alcohol Consumption`, which we investigated separately instead of changing the data automatically.
 
-The IQR method is implemented in:
-
-```text
-Src/iqr_detection.py
-```
-
-The calculation is:
-
-```text
-IQR = Q3 - Q1
-Lower Fence = Q1 - 1.5 × IQR
-Upper Fence = Q3 + 1.5 × IQR
-```
-
-A value outside the lower or upper fence is counted as an outlier.
-
-## 7. Z-Score Detection
-
-The Z-Score method is implemented in:
-
-```text
-Src/zscore_detection.py
-```
-
-The formula is:
-
-```text
-Z = (X - Mean) / Standard Deviation
-```
-
-The project uses the common rule:
-
-```text
-|Z| > 3
-```
-
-## 8. Outlier Treatment
-
-The treatment functions are in:
-
-```text
-Src/outlier_treatment.py
-```
-
-The project demonstrates simple treatment options:
-
-- Keep the values.
-- Remove extreme rows (Trimming).
-- Limit values to selected boundaries (Capping).
-- Apply a logarithmic transformation when appropriate.
-
-Treatment should not be applied automatically. First, check whether the unusual value is a real observation or a data error.
-
-## 9. Missing Values
-
-Missing values are checked during exploratory analysis.
-
-Most numerical and categorical columns have a small number of missing values. `Alcohol Consumption` has the largest number of missing values: 2,586 records (25.86%).
-
-A mode-imputation test was performed, but it changed the distribution of the feature considerably. Therefore, the project does not automatically apply mode imputation to this column.
-
-## 10. Results
-
-For the nine numerical features analyzed:
-
-```text
-IQR Outliers     = 0
-Z-Score Outliers = 0
-```
-
-Because both methods found no potential numerical outliers, no trimming or capping was applied.
-
-## 11. Main Files
-
-### `main.py`
-
-Runs the basic analysis from the command line.
-
-### `config/config.py`
-
-Stores the path to the raw dataset.
-
-### `Src/iqr_detection.py`
-
-Contains the IQR outlier detection function.
-
-### `Src/zscore_detection.py`
-
-Contains the Z-Score outlier detection function.
-
-### `Src/outlier_treatment.py`
-
-Contains simple functions for possible outlier treatments.
-
-### `notebooks/exploratory_analysis.ipynb`
-
-Used to explore and test the analysis step by step before organizing the code into Python files.
-
-### `docs/research.md`
-
-Contains the research explanation, comparison, findings, and references.
-
-## 12. References
+## References
 
 1. Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.
 2. Iglewicz, B., & Hoaglin, D. C. (1993). *How to Detect and Handle Outliers*. ASQC Quality Press.
 3. NIST/SEMATECH. *e-Handbook of Statistical Methods*.
-
-## 13. Team Members
-
-- Hassan Ali Hassan
-- Abdelrahman Ahmed Abdelrahman
-- Mohamed Hussein Ramadan
