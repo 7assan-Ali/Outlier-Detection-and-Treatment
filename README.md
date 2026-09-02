@@ -1,41 +1,42 @@
-# Outlier Detection and Treatment
+# 📊 Outlier Detection & Treatment
 
-A simple Python project for studying outliers using **IQR** and **Z-Score** on a Heart Disease dataset.
+A practical Python project that investigates statistical outliers using **IQR** and **Z-Score** methods on a Heart Disease dataset.
 
-## Team Members
+## 🎯 Project Objective
 
-- Hassan Ali Hassan
-- Abdelrahman Ahmed Abdelrahman
-- Mohamed Hussein Ramadan
+Compare two common statistical approaches for detecting unusual observations, evaluate their results, and discuss appropriate treatment strategies without blindly removing valid data.
 
-## Dataset
+## 📦 Dataset
 
 - 10,000 rows
 - 21 columns
-- 9 numerical features used for outlier detection
+- 9 numerical features analyzed for outliers
 - Target: `Heart Disease Status`
 
-## Project Steps
+## 🔬 Methodology
 
-1. Explore the dataset.
-2. Check missing values.
-3. Detect outliers using IQR.
-4. Detect outliers using Z-Score.
-5. Compare the results.
-6. Discuss possible treatment methods.
+1. Explore the dataset
+2. Inspect missing values
+3. Detect outliers using IQR
+4. Detect outliers using Z-Score
+5. Compare detection results
+6. Evaluate treatment options
+7. Document findings
 
-## Results
+## 📈 Results
 
-For all nine numerical features:
+For the nine numerical features evaluated:
 
 - **IQR outliers: 0**
 - **Z-Score outliers: 0**
 
-Therefore, no rows were removed or capped because the analysis did not find statistical outliers.
+No observations were removed or capped based on these tests.
 
-The main missing-data issue was `Alcohol Consumption` with **2,586 missing values (25.86%)**. A simple mode-imputation test changed the distribution noticeably, so this method was not considered suitable without further investigation.
+The main data-quality issue identified was missing `Alcohol Consumption` data. Because simple mode imputation noticeably changed the distribution, the project avoids treating that method as automatically appropriate and recommends further investigation.
 
-## IQR
+## 🧮 Detection Methods
+
+### IQR
 
 ```text
 IQR = Q3 - Q1
@@ -43,27 +44,25 @@ Lower Fence = Q1 - 1.5 × IQR
 Upper Fence = Q3 + 1.5 × IQR
 ```
 
-## Z-Score
+### Z-Score
 
 ```text
 Z = (X - mean) / standard deviation
 ```
 
-A common screening rule is `|Z| > 3`.
+A common screening threshold is `|Z| > 3`.
 
-## Treatment Methods
+## 🛠️ Treatment Strategies
 
-The research discusses:
+Depending on context, outliers may be:
 
-- Keep
-- Trimming
-- Capping / Winsorization
-- Imputation
-- Mathematical transformations
+- Kept when they represent valid observations
+- Trimmed when justified
+- Capped / Winsorized
+- Investigated for data-entry errors
+- Transformed using an appropriate mathematical transformation
 
-The choice depends on the data, the reason for the unusual value, and the goal of the analysis.
-
-## Project Structure
+## 📁 Project Structure
 
 ```text
 Data/raw/heart_disease.csv
@@ -78,26 +77,27 @@ requirements.txt
 README.md
 ```
 
-## Setup
+## 🚀 Setup
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-```
-
-Run the analysis:
-
-```powershell
 python main.py
 ```
 
-## Research
+## 👥 Team
 
-The detailed research is available in [`docs/research.md`](docs/research.md).
+- Hassan Ali Hassan
+- Abdelrahman Ahmed Abdelrahman
+- Mohamed Hussein Ramadan
 
-## References
+## 📚 References
 
-1. Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.
-2. Iglewicz, B., & Hoaglin, D. C. (1993). *How to Detect and Handle Outliers*. ASQC Quality Press.
+1. Tukey, J. W. (1977). *Exploratory Data Analysis*.
+2. Iglewicz, B., & Hoaglin, D. C. (1993). *How to Detect and Handle Outliers*.
 3. NIST/SEMATECH. *e-Handbook of Statistical Methods*.
+
+## 👨‍💻 Author / Team Project
+
+Developed as a collaborative data analysis project.
